@@ -1,0 +1,134 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .game-container {
+      width: 100vw;
+      height: 100vh;
+      background-color: #87CEEB; /* sky blue */
+      position: relative;
+    }
+
+    .player, .ball, .goal {
+      position: absolute;
+      bottom: 50px;
+    }
+
+    .player {
+      width: 50px;
+      height: 50px;
+      background-color: #32CD32; /* lime green */
+    }
+
+    .ball {
+      width: 20px;
+      height: 20px;
+      background-color: #FFD700; /* gold */
+    }
+
+    .goal {
+      width: 100px;
+      height: 60px;
+      background-color: #FF4500; /* orangered */
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  </style>
+  <title>Football Game</title>
+</head>
+<body>
+  <div class="game-container">
+    <div class="player" id="player"></div>
+    <div class="ball" id="ball"></div>
+    <div class="goal" id="goal"></div>
+    <audio id="crowdAudio" src="path/to/applause.mp3" loop></audio>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const player = document.getElementById('player');
+      const ball = document.getElementById('ball');
+      const goal = document.getElementById('goal');
+      const crowdAudio = document.getElementById('crowdAudio');
+
+      let playerPosition = 50; // Initial player position
+      let ballPositionX = 50; // Initial ball position
+      let ballPositionY = 50;
+      let ballSpeedX = 2; // Ball speed in X direction
+      let ballSpeedY = 1; // Ball speed in Y direction
+
+      document.addEventListener('keydown', function(event) {
+        // Left arrow key
+        if (event.key === 'ArrowLeft' && playerPosition > 0) {
+          playerPosition -= 10;
+          updatePlayerPosition();
+        }
+
+        // Right arrow key
+        if (event.key === 'ArrowRight' && playerPosition < window.innerWidth - 50) {
+          playerPosition += 10;
+          updatePlayerPosition();
+        }
+      });
+
+      function updatePlayerPosition() {
+        player.style.left = playerPosition + 'px';
+      }
+
+      function updateBallPosition() {
+        ballPositionX += ballSpeedX;
+        ballPositionY += ballSpeedY;
+
+        // Check for collisions with walls
+        if (ballPositionX < 0 || ballPositionX > window.innerWidth - 20) {
+          ballSpeedX = -ballSpeedX;
+        }
+
+        // Check for collisions with the player
+        if (
+          ballPositionY + 20 >= window.innerHeight - 50 &&
+          ballPositionX >= playerPosition &&
+          ballPositionX <= playerPosition + 50
+        ) {
+          ballSpeedY = -ballSpeedY;
+        }
+
+        // Check for scoring in the goal
+        if (
+          ballPositionY <= 60 &&
+          ballPositionX >= window.innerWidth / 2 - 50 &&
+          ballPositionX <= window.innerWidth / 2 + 50
+        ) {
+          crowdAudio.play();
+          alert('Goal! You win!');
+          resetGame();
+        }
+
+        ball.style.left = ballPositionX + 'px';
+        ball.style.bottom = ballPositionY + 'px';
+      }
+
+      function resetGame() {
+        playerPosition = 50;
+        ballPositionX = 50;
+        ballPositionY = 50;
+        updatePlayerPosition();
+      }
+
+      function gameLoop() {
+        updateBallPosition();
+        requestAnimationFrame(gameLoop);
+      }
+
+      // Initial position setup
+      updatePlayerPosition();
+      gameLoop();
+    });
+  </script>
+</body>
+</html>
